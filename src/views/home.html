@@ -1,0 +1,16 @@
+<div class="container">
+  <article class="card">
+    <h1>Registro</h1>
+    <form id="registerForm" class="form" autocomplete="off">
+      <div class="grid">
+        <label>Nombres<input id="firstName" type="text" required /></label>
+        <label>Apellidos<input id="lastName" type="text" required /></label>
+        <label>Edad<input id="age" type="number" min="10" max="120" required /></label>
+        <label>Email<input id="email" type="email" required /></label>
+        <label>Contraseña<input id="password" type="password" minlength="6" required /></label>
+      </div>
+      <button type="submit" class="btn">Crear cuenta</button>
+      <p id="registerMsg" class="small"></p>
+    </form>
+  </article>
+</div>

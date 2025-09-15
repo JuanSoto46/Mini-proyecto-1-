@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title id="appTitle">Taskly</title>
+    <link rel="stylesheet" href="/styles.css"/>
+  </head>
+  <body>
+    <header class="app-header">
+      <button id="menuToggle" class="app-header__toggle">☰</button>
+      <h1 id="app-title"></h1>
+      <nav class="menu" aria-label="Main">
+        <button data-view="board" class="menu__item" id="menuTasks">Tasks</button>
+        <button data-view="login" class="menu__item" id="menuLogin">Login</button>
+        <button data-view="home"  class="menu__item" id="menuRegister">Register</button>
+        <button data-view="recover" class="menu__item" id="menuRecover">Recover</button>
+        <button data-view="logout" id="btnLogout" class="menu__item menu__item--danger">Logout</button>
+      </nav>
+      <div id="systemStatus" aria-live="polite" class="status" role="status"></div>
+    </header>
+
+    <main id="app" class="container"></main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

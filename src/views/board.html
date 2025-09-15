@@ -1,0 +1,33 @@
+<section class="container">
+  <article class="card">
+    <h1>Tasks</h1>
+
+    <form id="taskForm" class="form" autocomplete="off" style="margin-bottom: 12px;">
+      <div class="grid">
+        <label>Título
+          <input id="t_title" type="text" required maxlength="120"/>
+        </label>
+        <label>Detalle
+          <input id="t_detail" type="text"/>
+        </label>
+        <label>Fecha
+          <input id="t_date" type="date" required/>
+        </label>
+        <label>Hora
+          <input id="t_time" type="time" required/>
+        </label>
+        <label>Estado
+          <select id="t_status">
+            <option value="todo">Por hacer</option>
+            <option value="doing">Haciendo</option>
+            <option value="done">Hecho</option>
+          </select>
+        </label>
+      </div>
+      <button class="btn" type="submit">Crear tarea</button>
+      <span id="taskMsg" class="small"></span>
+    </form>
+
+    <ul id="todoList" class="task-list"></ul>
+  </article>
+</section>
