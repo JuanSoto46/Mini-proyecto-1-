@@ -8,16 +8,16 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS bien configurado
-const allowlist = [
-  "http://localhost:5173",
-  "https://to-do-list-frontend-rkvquaue5-javy012s-projects.vercel.app"
-].filter(Boolean);
-
+// ✅ CORS configurado: acepta localhost y cualquier dominio de Vercel
 app.use(cors({
   origin(origin, cb) {
-    if (!origin) return cb(null, true); // curl/healthchecks
-    if (allowlist.includes(origin)) return cb(null, true);
+    if (!origin) return cb(null, true); // permite Postman, curl, healthchecks
+    if (
+      origin === "http://localhost:5173" || // tu entorno local
+      origin.endsWith(".vercel.app")        // cualquier dominio de Vercel
+    ) {
+      return cb(null, true);
+    }
     return cb(new Error("CORS blocked: " + origin));
   },
   methods: "GET,POST,PUT,DELETE,OPTIONS",
@@ -25,12 +25,14 @@ app.use(cors({
   credentials: true
 }));
 
-
+// Ruta de prueba
 app.get("/", (_req, res) => res.send("Server is running"));
 
+// Rutas de la API
 const routes = require("./routes/routes.js");
 app.use("/api/v1", routes);
 
+// Conexión DB
 const { connectDB } = require("./config/database");
 
 async function start() {
