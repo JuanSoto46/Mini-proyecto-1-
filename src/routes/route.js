@@ -45,7 +45,8 @@ function highlightMenu(name) {
 
 function getHashView() {
   const h = location.hash.replace(/^#\/?/, "");
-  const [view] = h.split("/");
+  const [viewWithParams] = h.split("/");
+  const view = viewWithParams.split("?")[0]; // 👈 elimina ?token=...
   return view || "home";
 }
 
