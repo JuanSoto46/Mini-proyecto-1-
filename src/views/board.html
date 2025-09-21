@@ -1,33 +1,69 @@
-<section class="container">
-  <article class="card">
-    <h1>Tasks</h1>
+<section class="kanban">
+  <div class="kanban__col" data-status="todo">
+    <header class="kanban__head">Por hacer</header>
+    <ul id="col_todo" class="kanban__list"></ul>
+  </div>
 
-    <form id="taskForm" class="form" autocomplete="off" style="margin-bottom: 12px;">
-      <div class="grid">
-        <label>Título
-          <input id="t_title" type="text" required maxlength="120"/>
-        </label>
-        <label>Detalle
-          <input id="t_detail" type="text"/>
-        </label>
-        <label>Fecha
-          <input id="t_date" type="date" required/>
-        </label>
-        <label>Hora
-          <input id="t_time" type="time" required/>
-        </label>
-        <label>Estado
-          <select id="t_status">
-            <option value="todo">Por hacer</option>
-            <option value="doing">Haciendo</option>
-            <option value="done">Hecho</option>
-          </select>
-        </label>
-      </div>
-      <button class="btn" type="submit">Crear tarea</button>
-      <span id="taskMsg" class="small"></span>
-    </form>
+  <div class="kanban__col" data-status="doing">
+    <header class="kanban__head">Haciendo</header>
+    <ul id="col_doing" class="kanban__list"></ul>
+  </div>
 
-    <ul id="todoList" class="task-list"></ul>
-  </article>
+  <div class="kanban__col" data-status="done">
+    <header class="kanban__head">Hecho</header>
+    <ul id="col_done" class="kanban__list"></ul>
+  </div>
 </section>
+
+<!-- Botón flotante Crear -->
+<button id="fabNewTask" class="fab" aria-label="Crear tarea">+</button>
+
+<!-- Panel Crear/Editar -->
+<div id="taskPanel" class="panel hidden" role="dialog" aria-modal="true">
+  <form id="taskForm" class="form card" autocomplete="off">
+    <h2 id="taskFormTitle">Crear tarea</h2>
+    <input type="hidden" id="t_id" />
+
+    <label>Título
+      <input id="t_title" type="text" required minlength="2" />
+    </label>
+
+    <label>Descripción
+      <textarea id="t_detail" rows="3" placeholder="Opcional"></textarea>
+    </label>
+
+    <label>Fecha
+      <input id="t_date" type="date" required />
+    </label>
+
+    <label>Hora
+      <input id="t_time" type="time" required />
+    </label>
+
+    <label>Estado
+      <select id="t_status">
+        <option value="todo">Por hacer</option>
+        <option value="doing">Haciendo</option>
+        <option value="done">Hecho</option>
+      </select>
+    </label>
+
+    <div class="form__actions">
+      <button type="submit" class="btn btn--primary" id="btnSaveTask">Guardar tarea</button>
+      <button type="button" class="btn" id="btnCancelTask">Cancelar</button>
+    </div>
+    <p id="taskMsg" class="small"></p>
+  </form>
+</div>
+
+<!-- Diálogo Eliminar -->
+<div id="deleteDialog" class="dialog hidden" role="alertdialog" aria-modal="true">
+  <div class="dialog__box card">
+    <h3>Eliminar tarea</h3>
+    <p>¿Seguro que deseas eliminar esta tarea?</p>
+    <div class="dialog__actions">
+      <button type="button" class="btn btn--danger" id="btnConfirmDelete">Eliminar</button>
+      <button type="button" class="btn" id="btnCancelDelete">Cancelar</button>
+    </div>
+  </div>
+</div>

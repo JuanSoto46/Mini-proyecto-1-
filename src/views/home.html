@@ -1,16 +1,44 @@
-<div class="container">
+<div class="container"> 
   <article class="card">
     <h1>Registro</h1>
+
     <form id="registerForm" class="form" autocomplete="off">
       <div class="grid">
-        <label>Nombres<input id="firstName" type="text" required /></label>
-        <label>Apellidos<input id="lastName" type="text" required /></label>
-        <label>Edad<input id="age" type="number" min="10" max="120" required /></label>
-        <label>Email<input id="email" type="email" required /></label>
-        <label>Contraseña<input id="password" type="password" minlength="6" required /></label>
+        <label>Nombres
+          <input id="firstName" name="firstName" type="text" required minlength="2" autocomplete="given-name" />
+        </label>
+
+        <label>Apellidos
+          <input id="lastName" name="lastName" type="text" required minlength="2" autocomplete="family-name" />
+        </label>
+
+        <label>Edad
+          <input id="age" name="age" type="number" inputmode="numeric" min="10" max="120" required />
+        </label>
+
+        <label>Correo
+          <input id="email" name="email" type="email" required autocomplete="email" />
+        </label>
+
+        <label>Contraseña
+          <div class="input-pass">
+            <input id="password" name="password" type="password" minlength="6" required autocomplete="new-password" />
+            <button type="button" class="btn btn--ghost" id="togglePwd">Mostrar</button>
+          </div>
+        </label>
+
+        <label>Confirmar contraseña
+          <input id="password2" name="password2" type="password" minlength="6" required autocomplete="new-password" />
+        </label>
       </div>
-      <button type="submit" class="btn">Crear cuenta</button>
-      <p id="registerMsg" class="small"></p>
+
+      <div class="form__actions">
+        <button type="submit" class="btn btn--primary">Crear cuenta</button>
+        <a href="#/login" data-view="login" class="btn btn--ghost">Volver al inicio</a>
+      </div>
+
+      <p id="registerMsg" class="small" aria-live="polite"></p>
     </form>
   </article>
 </div>
+

@@ -1,10 +1,44 @@
 <div class="container">
   <article class="card">
     <h1>Recuperar contraseña</h1>
-    <form id="recoverForm" class="form" autocomplete="off">
-      <label>Email<input id="email" type="email" required /></label>
-      <button class="btn" type="submit">Recuperar</button>
-      <p id="recoverMsg" class="small"></p>
+
+    <!-- Solicitud por correo -->
+    <form id="recoverRequest" class="form" autocomplete="off">
+      <label>Correo
+        <input id="recEmail" name="email" type="email" required autocomplete="email" />
+      </label>
+
+      <div class="form__actions">
+        <button class="btn btn--primary" type="submit">Enviar correo</button>
+        <a href="#/login" data-view="login" class="btn btn--ghost">Volver al inicio</a>
+      </div>
+
+      <p id="recoverMsg" class="small" aria-live="polite"></p>
+    </form>
+
+    <!-- Reset con token -->
+    <form id="recoverReset" class="form" style="display:none" autocomplete="off">
+      <input id="recToken" type="hidden" />
+      <input id="recEmail2" type="hidden" />
+
+      <label>Nueva contraseña
+        <div class="input-pass">
+          <input id="recPwd" name="password" type="password" minlength="6" required autocomplete="new-password" />
+          <button type="button" class="btn btn--ghost" id="togglePwdRec">Mostrar</button>
+        </div>
+      </label>
+
+      <label>Confirmar contraseña
+        <input id="recPwd2" name="password2" type="password" minlength="6" required autocomplete="new-password" />
+      </label>
+
+      <div class="form__actions">
+        <button type="submit" class="btn btn--primary">Cambiar contraseña</button>
+        <a href="#/login" data-view="login" class="btn btn--ghost">Volver al inicio</a>
+      </div>
+
+      <p id="recoverMsgReset" class="small" aria-live="polite"></p>
     </form>
   </article>
 </div>
+

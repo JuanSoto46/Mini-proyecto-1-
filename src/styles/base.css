@@ -76,3 +76,14 @@ form {
     
 }
 
+
+
+/* Kanban layout */
+.kanban { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.kanban__col { background: var(--card, #151515); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 10px; }
+.kanban__col ul { list-style: none; padding: 0; display: grid; gap: 8px; }
+.task { padding: 10px; border: 1px solid rgba(255,255,255,.08); border-radius: 8px; display: grid; gap: 4px; }
+.task__actions { display: flex; gap: 8px; }
+.input-pass { display: grid; grid-template-columns: 1fr auto; gap: 6px; align-items: center; }
+.auth-links { margin-top: 10px; }
+.small { opacity: .85; font-size: .9rem; }

@@ -7,60 +7,133 @@
   --stroke: #1f2937;
   --fg: #e5e7eb;
   --muted: #94a3b8;
-  --primary: #22c55e;
+  --primary: #2e5bff;
   --danger: #ef4444;
 
   /* Radii & shadows */
+   --primary-600:    #194bff;  /* hover */
+  --primary-700:    #002cda;  /* active */
+  --on-primary:     #ffffff;  /* texto en botón primario */
+  --ring-primary:   #5c7fff;  /* focus ring */
   --radius: 16px;
   --r-sm: 10px;
-  --shadow: 0 10px 30px rgba(0,0,0,.25);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
 /* ====== Reset & base ====== */
 * { box-sizing: border-box; }
 html, body { height: 100%; }
-html,body {
+html, body {
   margin: 0;
   background: linear-gradient(180deg, var(--bg), #0a1020);
   color: var(--fg);
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Arial, Noto Sans, sans-serif;
-  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden; /* nada de scroll horizontal */
 }
 
 /* ====== Layout ====== */
-.app-header {
-  position: sticky; top: 0; z-index: 10;
-  background: rgba(17,24,39,.7);
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid rgba(255,255,255,.06);
-  padding: 12px 16px;
-  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
-}
+.app-header { position: sticky; top: 0; z-index: 60; }
 #app-title { margin: .2rem 0; font-weight: 700; }
-
-.menu { display: flex; gap: 8px; flex-wrap: wrap; }
-.menu__item{
-  background: #0b1322;
-  color: var(--fg);
-  border: 1px solid rgba(255,255,255,.1);
-  padding: 8px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: transform .05s ease, filter .15s ease;
-}
-.menu__item:hover { filter: brightness(1.05); }
-.menu__item:active { transform: translateY(1px); }
-.menu__item--danger{ border-color: rgba(239,68,68,.5); }
 
 .status { margin-left: auto; font-size: 12px; color: var(--muted); min-height: 1.1rem; }
 
-.container { max-width: 980px; margin: 24px auto; padding: 0 16px; }
+.container {
+  display: block;
+  width: 100%;
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
 .card {
   background: var(--card);
   border: 1px solid rgba(255,255,255,.06);
-  border-radius: var(--radius);
-  padding: 16px;
+  border-radius: 20px;
+  padding: 24px;
   box-shadow: var(--shadow);
+  overflow: visible;
+}
+.card > h1 { margin: 0 0 18px; text-align: center; }
+
+/* ====== Menu ====== */
+#mainMenu.menu{
+  position: fixed !important;
+  top: 0; right: 0; bottom: 0;
+  width: 280px; max-width: 86vw;
+  background: #0b1322;   /* ajusta a tu tema */
+  padding: 16px;
+  display: flex !important;
+  flex-direction: column;
+  gap: 8px;
+  transform: translateX(100%) !important;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: transform .25s ease, opacity .2s ease, visibility 0s .25s;
+  z-index: 55;
+}
+#mainMenu.menu.open{
+  transform: translateX(0) !important;
+  opacity: 1; visibility: visible; pointer-events: auto;
+  transition: transform .25s ease, opacity .2s ease;
+}
+
+
+#mainMenu .menu__item{ width: 100%; text-align: left; }
+
+
+@media (min-width: 768px){
+  .app-header__toggle{ display: inline-flex !important; }
+  
+}
+.menu__spacer { display: none; }
+.menu__item:hover { filter: brightness(1.05); }
+.menu__item:active { transform: translateY(1px); }
+.menu__item--danger{ border-color: rgba(239,68,68,.5); }
+.menu__item.active { background: #0f1b31; border-color: rgba(255,255,255,.18); }
+#btnLogout { margin-left: auto; }
+.backdrop { background: transparent; }
+/* Botón ☰ fijo y visible siempre */
+.app-header__toggle { z-index: 65; }
+
+/* Si tu FAB se solapa, asegúrate que quede bajo el menú */
+.fab { z-index: 40; }
+
+/* Hamburguesa en móvil */
+.app-header__toggle{
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 40px; height: 40px;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  z-index: 65;
+}
+.app-header__toggle:focus-visible {
+  outline: 2px solid rgba(94, 129, 255, 0.45);
+  outline-offset: 2px;
+}
+@media (max-width: 768px) {
+  .app-header__toggle { display: inline-flex; }
+  .menu {
+    display: none;
+    position: absolute;
+    top: 56px;
+    left: 12px;
+    right: 12px;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    z-index: 20;
+  }
+  .menu.open { display: flex; }
+  #btnLogout { margin-left: 0; align-self: flex-end; }
 }
 
 /* ====== Forms ====== */
@@ -75,6 +148,7 @@ input, select, textarea, button {
   border: 1px solid rgba(255,255,255,.1);
   background: #0b1322;
   color: var(--fg);
+  max-width: 100%;
 }
 input:focus, select:focus, textarea:focus {
   outline: 2px solid rgba(34,197,94,.35);
@@ -84,34 +158,98 @@ input:focus, select:focus, textarea:focus {
 .btn {
   padding: 10px 14px;
   border-radius: var(--r-sm);
-  border: 1px solid #334155;
+  border: 1px solid #0f4077;
   background: var(--primary);
-  color: #03120c;
-  font-weight: 600;
+  color: #ffffff;
+  font-weight: 550;
   cursor: pointer;
 }
 .btn--danger { background: var(--danger); border-color: rgba(255,255,255,.15); color: #220909; }
 
-/* ====== Lists / board ====== */
-.task-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+/* ====== Board layout lateral ====== */
+.board-layout {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr); /* el tablero puede encogerse sin romper */
+  gap: 18px;
+  align-items: start;
+}
+.board-form { position: sticky; top: 8px; }
+@media (max-width: 900px) {
+  .board-layout { grid-template-columns: 1fr; }
+  .board-form { position: static; }
+}
+
+/* ====== Kanban ====== */
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+@media (max-width: 1050px) { .kanban { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 700px)  { .kanban { grid-template-columns: 1fr; } }
+
+.kanban__col {
+  min-width: 0;
+  background: var(--card, #151515);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+/* Encabezado de columna: usa tu <header class="kanban__head"> */
+.kanban__head {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #cbd5e1;
+}
+
+/* Lista interna sin scroll: crece la página, no la columna */
+.kanban__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  min-height: 40px;    /* para mostrar vacío con altura mínima */
+  overflow: visible;
+}
+
+/* Tarjetas */
 .task {
-  display: grid; gap: 6px; padding: 12px;
-  border-radius: 14px;
+  padding: 12px;
+  border-radius: 12px;
   border: 1px solid rgba(255,255,255,.08);
   background: #0b1322;
+  display: grid;
+  gap: 6px;
 }
-.task__header { display: flex; justify-content: space-between; align-items: center; }
+.task__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
 .badge { padding: 4px 8px; border-radius: 999px; border: 1px solid rgba(255,255,255,.12); font-size: .8rem; }
 .badge--todo  { color: #fde047; border-color: #fde04740; }
 .badge--doing { color: #60a5fa; border-color: #60a5fa40; }
 .badge--done  { color: #34d399; border-color: #34d39940; }
-.task__meta { color: var(--muted); font-size: .85rem; }
-.empty { color: var(--muted); text-align: center; padding: 20px; }
 
+.task__meta { color: var(--muted, #9aa4b2); font-size: .85rem; }
+.empty { color: var(--muted, #9aa4b2); text-align: center; padding: 20px; }
+
+/* Botón flotante arriba del contenido pero debajo del modal */
+.fab {
+  position: fixed;
+  right: 18px;        /* ← a la derecha */
+  left: auto;         /* ← por si algún CSS viejo lo forzaba a la izquierda */
+  bottom: 72px;       /* súbelo un poco para que no quede tan pegado abajo */
+  z-index: 40;        /* por encima del contenido */
+}
+@media (max-width: 900px) {
+  .fab { bottom: 88px; }  /* un poco más arriba en móvil */
+}
+.panel, .dialog { z-index: 50; } /* aseguran que los modales queden por encima */
 /* ====== Utilities ====== */
 .small { font-size: 12px; color: var(--muted); min-height: 1.25rem; }
 .error { color: #fecaca; }
 .success { color: #a7f3d0; }
+.hidden { display: none !important; }
 
 /* ====== Footer ====== */
 .app-footer{
@@ -122,9 +260,119 @@ input:focus, select:focus, textarea:focus {
   text-align: center;
 }
 
-/* Tasks list */
-.task-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-.task { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid rgba(255,255,255,.06); border-radius: var(--radius); background: var(--card); }
-.task__main { display: grid; gap: 2px; }
-.task__actions { display: flex; gap: 8px; align-items: center; }
-.btn--danger { background: #a33; }
+/* ============== LAYOUT FIJO Y RESPONSIVO, VENCE TODO ============== */
+
+/* Nada de scroll horizontal global */
+html, body { overflow-x: hidden; }
+
+/* Contenedor centrado y no-flex, ancho cómodo en desktop */
+main.container,
+.container {
+  display: block !important;
+  width: 100%;
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+/* Card holgada, sin recortes */
+.card { border-radius: 20px; padding: 24px; overflow: visible; }
+.card > h1 { margin: 0 0 18px; text-align: center; }
+
+/* Lateral: form + tablero */
+.board-layout {
+  display: grid !important;
+  grid-template-columns: 340px minmax(0, 1fr) !important;
+  gap: 18px;
+  align-items: start;
+}
+.board-form { position: sticky; top: 8px; }
+
+/* Kanban base en desktop */
+.kanban {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px;
+}
+
+/* Columnas que no empujan el ancho */
+.kanban__col {
+  min-width: 0;
+  background: var(--card, #151515);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 12px;
+}
+.kanban__col h3 { margin: 0 0 10px; }
+
+/* Lista sin scroll interno: crece la página, no la columna */
+.kanban__col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  min-height: 40px;
+  overflow: visible !important;
+}
+
+/* Tarjeta compacta */
+.task { padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: #0b1322; display: grid; gap: 6px; }
+.task__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Breakpoints escalonados */
+@media (max-width: 1050px) {
+  .kanban { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 900px) {
+  .board-layout { grid-template-columns: 1fr !important; }
+  .board-form { position: static; }
+}
+@media (max-width: 700px) {
+  /* Aquí obligamos 1 sola columna, pase lo que pase */
+  .kanban { grid-template-columns: 1fr !important; }
+}
+
+/* Header responsive y menú móvil (por si otra hoja lo pisa) */
+.app-header { position: sticky; top: 0; z-index: 10; position: relative; }
+#btnLogout { margin-left: auto; }
+.app-header__toggle {
+  background: none; border: 1px solid rgba(255,255,255,.2); border-radius: 10px;
+  font-size: 1.25rem; line-height: 1; padding: 8px 10px; color: var(--fg); display: none;
+}
+@media (max-width: 768px) {
+  .app-header__toggle { display: inline-flex; }
+  .menu {
+    display: none; position: absolute; top: 56px; left: 12px; right: 12px;
+    flex-direction: column; gap: 10px; padding: 12px; background: var(--card);
+    border: 1px solid rgba(255,255,255,.1); border-radius: 12px; box-shadow: var(--shadow); z-index: 20;
+  }
+  .menu.open { display: flex; }
+  #btnLogout { margin-left: 0; align-self: flex-end; }
+}
+/* Cards angostas SOLO en login/registro/recover/perfil (sin tocar HTML) */
+.card:has(#loginForm),
+.card:has(#registerForm),
+.card:has(#recoverRequest),
+.card:has(#recoverReset),
+.card:has(#profileForm) {
+  width: min(100%, 520px);
+  margin: 24px auto;          /* centrada */
+}
+
+/* En pantallas muy grandes, un pelín más si quieres */
+@media (min-width: 1440px){
+  .card:has(#loginForm),
+  .card:has(#registerForm),
+  .card:has(#recoverRequest),
+  .card:has(#recoverReset),
+  .card:has(#profileForm) {
+    width: 560px;
+  }
+}
+
+/* Formularios de registro en UNA columna dentro de la card angosta */
+.card:has(#registerForm) .grid {
+  grid-template-columns: 1fr;
+}
+

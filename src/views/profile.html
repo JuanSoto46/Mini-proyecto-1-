@@ -1,0 +1,30 @@
+<div class="container">
+  <article class="card">
+    <h1>Perfil</h1>
+
+    <form id="profileForm" class="form" autocomplete="off">
+      <label>Nombre
+        <input id="firstName" name="firstName" type="text" required minlength="2" />
+      </label>
+
+      <label>Apellido
+        <input id="lastName" name="lastName" type="text" required minlength="2" />
+      </label>
+
+      <label>Edad
+        <input id="age" name="age" type="number" min="10" max="120" required />
+      </label>
+
+      <label>Correo
+        <input id="email" name="email" type="email" required />
+      </label>
+
+      <div class="form__actions">
+        <button type="submit" class="btn btn--primary">Guardar</button>
+        <button type="button" id="btnCancel" class="btn">Cancelar</button>
+      </div>
+
+      <p id="profileMsg" class="small" aria-live="polite"></p>
+    </form>
+  </article>
+</div>
