@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
-require("dotenv").config();
 
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000,
+      maxPoolSize: 10
     });
     console.log("Connected to MongoDB");
   } catch (error) {
@@ -23,5 +22,13 @@ const disconnectDB = async () => {
   }
 };
 
+async function syncAllIndexes() {
+  const { models } = mongoose;
+  for (const name of Object.keys(models)) {
+    if (typeof models[name].syncIndexes === "function") {
+      await models[name].syncIndexes();
+    }
+  }
+}
 
-module.exports = { connectDB, disconnectDB };
+module.exports = { connectDB, disconnectDB, syncAllIndexes };

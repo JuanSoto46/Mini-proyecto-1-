@@ -1,43 +1,61 @@
 /**
  * @file taskRoutes.js
- * @description Task endpoints using GET/POST only. Require JWT.
  */
-
 const express = require("express");
 const Task = require("../models/Task");
 const { authRequired } = require("../middlewares/auth");
-
 const router = express.Router();
 
-// GET /tasks -> list by user
+// GET /tasks -> tareas del usuario
 router.get("/", authRequired, async (req, res) => {
   const items = await Task.find({ userId: req.userId }).sort({ createdAt: -1 });
   res.json(items);
 });
 
-// POST /tasks -> create
+// POST /tasks -> crear
 router.post("/", authRequired, async (req, res) => {
   const { title, detail = "", date, time, status = "todo" } = req.body || {};
-  if (!title || !date || !time || !status) return res.status(400).json({ message: "Missing fields" });
-  const created = await Task.create({ userId: req.userId, title, detail, date, time, status });
-  res.status(201).json(created);
+  if (!title || !date || !time) return res.status(400).json({ message: "Faltan campos" });
+  const item = await Task.create({ userId: req.userId, title, detail, date, time, status });
+  res.status(201).json(item);
 });
 
-// POST /tasks/:id/status -> update status
-router.post("/:id/status", authRequired, async (req, res) => {
-  const { id } = req.params;
+// PUT /tasks/:id -> actualizar todo
+router.put("/:id", authRequired, async (req, res) => {
+  const { title, detail = "", date, time, status } = req.body || {};
+  if (!title || !date || !time) return res.status(400).json({ message: "Faltan campos" });
+
+  const update = { title, detail, date, time };
+  if (status) update.status = status;
+
+  const task = await Task.findOneAndUpdate(
+    { _id: req.params.id, userId: req.userId },
+    update,
+    { new: true, runValidators: true }
+  );
+  if (!task) return res.status(404).json({ message: "Tarea no encontrada" });
+  res.json(task);
+});
+
+// PUT /tasks/:id/status -> solo status
+router.put("/:id/status", authRequired, async (req, res) => {
   const { status } = req.body || {};
-  if (!status) return res.status(400).json({ message: "Missing status" });
-  const updated = await Task.findOneAndUpdate({ _id: id, userId: req.userId }, { status }, { new: true });
-  if (!updated) return res.status(404).json({ message: "Task not found" });
-  res.json(updated);
+  if (!["todo","doing","done"].includes(status)) {
+    return res.status(400).json({ message: "Status inválido" });
+  }
+  const task = await Task.findOneAndUpdate(
+    { _id: req.params.id, userId: req.userId },
+    { status },
+    { new: true }
+  );
+  if (!task) return res.status(404).json({ message: "Tarea no encontrada" });
+  res.json(task);
 });
 
-// POST /tasks/:id/delete -> delete
-router.post("/:id/delete", authRequired, async (req, res) => {
-  const { id } = req.params;
-  const del = await Task.deleteOne({ _id: id, userId: req.userId });
-  if (del.deletedCount === 0) return res.status(404).json({ message: "Task not found" });
+// DELETE /tasks/:id -> eliminar
+router.delete("/:id", authRequired, async (req, res) => {
+  const del = await Task.findOneAndDelete({ _id: req.params.id, userId: req.userId });
+  if (!del) return res.status(404).json({ message: "Tarea no encontrada" });
   res.json({ ok: true });
 });
 

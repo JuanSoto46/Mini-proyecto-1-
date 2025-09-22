@@ -1,23 +1,26 @@
-/**
- * @file auth.js
- * @description JWT authentication middleware.
- */
-
+// api/middlewares/auth.js
 const jwt = require("jsonwebtoken");
+const BEARER = /^Bearer\s+(.+)$/i;
 
-/**
- * Validate Bearer token and attach req.userId.
- */
 function authRequired(req, res, next) {
   try {
-    const hdr = req.headers.authorization || "";
-    const [, token] = hdr.split(" ");
-    if (!token) return res.status(401).json({ message: "Unauthorized" });
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "dev");
-    req.userId = decoded.sub;
+    if (req.method === "OPTIONS") return res.sendStatus(200);
+    const h = req.headers.authorization || "";
+    const m = h.match(BEARER);
+    if (!m) return res.status(401).json({ message: "Missing token" });
+
+    const token = m[1].trim();
+    const secret = process.env.JWT_SECRET || "dev";
+    const payload = jwt.verify(token, secret);
+
+    req.userId = payload.sub || payload.id || payload._id;
+    req.user = { id: req.userId, email: payload.email };
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Unauthorized" });
+    // Logging útil para depurar
+    console.error("[JWT] verify failed:", err?.name, "-", err?.message);
+    const msg = err?.name === "TokenExpiredError" ? "Token expired" : "Invalid token";
+    return res.status(401).json({ message: msg });
   }
 }
 
