@@ -1,0 +1,12 @@
+const express = require("express");
+const router = express.Router();
+const { authRequired } = require("../middlewares/auth");
+const UserController = require("../controllers/UserController");
+
+// Proteger endpoints con JWT
+router.get("/", authRequired, UserController.list);
+router.get("/me", authRequired, UserController.me);
+
+router.put("/me", authRequired, UserController.updateMe);
+
+module.exports = router;

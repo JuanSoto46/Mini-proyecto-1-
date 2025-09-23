@@ -1,0 +1,62 @@
+/**
+ * @file Controlador de usuarios.
+ */
+const bcrypt = require("bcryptjs");
+const User = require("../models/User");
+
+module.exports = {
+  /** Listar usuarios (campos públicos) */
+  async list(_req, res) {
+    const users = await User.find({}, "firstName lastName email age createdAt");
+    res.json(users);
+  },
+
+  /** Perfil del usuario autenticado */
+  async me(req, res) {
+    const u = await User.findById(req.userId, "firstName lastName email age createdAt");
+    if (!u) return res.status(404).json({ message: "Usuario no encontrado" });
+    res.json(u);
+  },
+
+  /** ➕ Actualizar perfil propio */
+  async updateMe(req, res) {
+    try {
+      const userId = req.userId;
+      const { firstName, lastName, age, email, password } = req.body || {};
+
+      const updates = {};
+      if (typeof firstName === "string") updates.firstName = firstName.trim();
+      if (typeof lastName  === "string") updates.lastName  = lastName.trim();
+      if (typeof age       !== "undefined") updates.age    = Number(age);
+
+      if (typeof email === "string") {
+        const newEmail = String(email).toLowerCase().trim();
+        // Evitar duplicados de email
+        const exists = await User.findOne({ email: newEmail, _id: { $ne: userId } });
+        if (exists) return res.status(409).json({ message: "Email ya está en uso" });
+        updates.email = newEmail;
+      }
+
+      // Si quiere cambiar contraseña desde el perfil (opcional)
+      if (typeof password === "string" && password.length > 0) {
+        if (password.length < 6) return res.status(400).json({ message: "La contraseña debe tener al menos 6 caracteres" });
+        updates.passwordHash = await bcrypt.hash(password, 10);
+      }
+
+      if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ message: "No hay campos para actualizar" });
+      }
+
+      const updated = await User.findByIdAndUpdate(
+        userId,
+        { $set: updates },
+        { new: true, projection: "firstName lastName email age createdAt" }
+      );
+      if (!updated) return res.status(404).json({ message: "Usuario no encontrado" });
+
+      res.json(updated);
+    } catch (err) {
+      res.status(500).json({ message: "Error en el servidor" });
+    }
+  }
+};
