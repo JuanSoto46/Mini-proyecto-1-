@@ -23,3 +23,7 @@ export async function getMe() {
 export async function updateProfile(data) {
   return http.put("/users/me", data, { auth: true });
 }
+/** Change password while logged in */
+export async function changePassword({ currentPassword, newPassword }) {
+  return http.post("/auth/change-password", { currentPassword, newPassword }, { auth: true });
+}

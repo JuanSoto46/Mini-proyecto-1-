@@ -1,44 +1,65 @@
 <div class="container">
   <article class="card">
-    <h1>Recuperar contraseña</h1>
+  
 
-    <!-- Solicitud por correo -->
-    <form id="recoverRequest" class="form" autocomplete="off">
-      <label>Correo
-        <input id="recEmail" name="email" type="email" required autocomplete="email" />
-      </label>
+<!-- 1) Solicitud por correo (no logueado) -->
+<form id="recoverRequest" class="form" autocomplete="off">
+  <label>Correo
+    <input id="recEmail" name="email" type="email" required autocomplete="email" />
+  </label>
+  <div class="form__actions">
+    <button class="btn btn--primary" type="submit">Enviar enlace</button>
+    <a href="#/login" data-view="login" class="btn btn--ghost">Volver al inicio</a>
+  </div>
+  <p id="recoverMsg" class="small" aria-live="polite"></p>
+</form>
 
-      <div class="form__actions">
-        <button class="btn btn--primary" type="submit">Enviar correo</button>
-        <a href="#/login" data-view="login" class="btn btn--ghost">Volver al inicio</a>
-      </div>
+<!-- 2) Reset con token (link del correo) -->
+<form id="recoverReset" class="form" autocomplete="off" hidden>
+  <input id="recToken" type="hidden" />
+  <div id="recEmail2Wrap">
+    <label>Correo
+      <input id="recEmail2" type="email" autocomplete="email" />
+    </label>
+  </div>
 
-      <p id="recoverMsg" class="small" aria-live="polite"></p>
-    </form>
+  <label>Nueva contraseña
+    <div class="input-pass">
+      <input id="recPwd" name="password" type="password" minlength="6" required autocomplete="new-password" />
+      <button type="button" class="btn btn--ghost" id="togglePwdRec">Mostrar</button>
+    </div>
+  </label>
 
-    <!-- Reset con token -->
-    <form id="recoverReset" class="form" style="display:none" autocomplete="off">
-      <input id="recToken" type="hidden" />
-      <input id="recEmail2" type="hidden" />
+  <label>Confirmar contraseña
+    <input id="recPwd2" name="password2" type="password" minlength="6" required autocomplete="new-password" />
+  </label>
 
-      <label>Nueva contraseña
-        <div class="input-pass">
-          <input id="recPwd" name="password" type="password" minlength="6" required autocomplete="new-password" />
-          <button type="button" class="btn btn--ghost" id="togglePwdRec">Mostrar</button>
-        </div>
-      </label>
+  <div class="form__actions">
+    <button type="submit" class="btn btn--primary">Cambiar contraseña</button>
+    <a href="#/login" data-view="login" class="btn btn--ghost">Volver al inicio</a>
+  </div>
 
-      <label>Confirmar contraseña
-        <input id="recPwd2" name="password2" type="password" minlength="6" required autocomplete="new-password" />
-      </label>
+  <p id="recoverMsgReset" class="small" aria-live="polite"></p>
+</form>
 
-      <div class="form__actions">
-        <button type="submit" class="btn btn--primary">Cambiar contraseña</button>
-        <a href="#/login" data-view="login" class="btn btn--ghost">Volver al inicio</a>
-      </div>
+<!-- 3) Cambio directo (logueado) -->
+<form id="recoverChange" class="form" autocomplete="off" hidden>
+  <label>Contraseña actual
+    <input id="curPwd" name="currentPassword" type="password" minlength="6" required autocomplete="current-password" />
+  </label>
 
-      <p id="recoverMsgReset" class="small" aria-live="polite"></p>
-    </form>
-  </article>
-</div>
+  <label>Nueva contraseña
+    <input id="newPwd" name="newPassword" type="password" minlength="6" required autocomplete="new-password" />
+  </label>
 
+  <label>Confirmar contraseña
+    <input id="newPwd2" name="newPassword2" type="password" minlength="6" required autocomplete="new-password" />
+  </label>
+
+  <div class="form__actions">
+    <button type="submit" class="btn btn--primary">Cambiar contraseña</button>
+    <a href="#/profile" data-view="profile" class="btn btn--ghost">Volver al perfil</a>
+  </div>
+
+  <p id="recoverMsgChange" class="small" aria-live="polite"></p>
+</form>

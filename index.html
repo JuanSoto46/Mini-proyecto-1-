@@ -9,23 +9,42 @@
   <body>
     <header class="app-header">
       <button id="menuToggle" class="app-header__toggle" aria-controls="mainMenu" aria-expanded="false">☰</button>
-  <h1 id="app-title"></h1>
+      <h1 id="app-title"></h1>
       <nav id="mainMenu" class="menu">
-  <button data-view="login"   id="menuLogin"   class="menu__item">Login</button>
-  <button data-view="board"   id="menuBoard"   class="menu__item">Tareas</button>
-  <button data-view="profile" id="menuProfile" class="menu__item">Editar perfil</button>
-  <button data-view="recover" id="menuRecover" class="menu__item">Recuperar contraseña</button>
-  <button data-view="about"   id="menuAbout"   class="menu__item">Sobre nosotros</button>
+        <button data-view="login"   id="menuLogin"   class="menu__item">Login</button>
+        <button data-view="board"   id="menuBoard"   class="menu__item">Tareas</button>
+        <button data-view="profile" id="menuProfile" class="menu__item">Perfil</button>
+        <button data-view="recover" id="menuRecover" class="menu__item">Cambiar contraseña</button>
+        <button data-view="about"   id="menuAbout"   class="menu__item">Sobre nosotros</button>
 
-  <span class="menu__spacer"></span>
+        <span class="menu__spacer"></span>
 
-  <button data-view="logout"  id="menuLogout"  class="menu__item menu__item--danger">Cerrar sesión</button>
-</nav>
+        <button data-view="logout"  id="menuLogout"  class="menu__item menu__item--danger">Cerrar sesión</button>
+      </nav>
 
       <div id="systemStatus" aria-live="polite" class="status" role="status"></div>
     </header>
 
     <main id="app" class="container"></main>
+<footer class="site-footer">
+  <div class="site-footer__grid container" aria-label="Mapa del sitio">
+    <section class="footer-col">
+      <h3 class="footer-col__title">Mapa del sitio</h3>
+      <nav aria-label="Secciones">
+        <ul id="footer-sitemap" class="footer-list"></ul>
+      </nav>
+    </section>
+
+    <section id="footer-account-col" class="footer-col" hidden>
+      <h3 class="footer-col__title">Cuenta</h3>
+      <ul id="footer-account" class="footer-list"></ul>
+    </section>
+  </div>
+
+  <div class="site-footer__legal">
+    <small>© <span id="year-now"></span> Taskly. Todos los derechos reservados.</small>
+  </div>
+</footer>
 
     <script type="module" src="/src/main.js"></script>
   </body>

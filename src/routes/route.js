@@ -1,4 +1,4 @@
-import { registerUser, loginUser, recoverUser, getMe, updateProfile } from "../services/userService.js";
+import { registerUser, loginUser, recoverUser, changePassword, getMe, updateProfile } from "../services/userService.js";
 import { tasksApi } from "../services/taskService.js";
 
 // Import raw HTML views (Vite)
@@ -21,15 +21,41 @@ function getView(name) {
 function render(name) {
   try {
     app.innerHTML = getView(name);
+
     switch (name) {
-      case "home":    initRegister(); setTitle("Sign up"); break;
-      case "login":   initLogin();    setTitle("Login");   break;
-      case "profile": initProfile(); setTitle("My profile"); break;
-      case "recover": initRecover();  setTitle("Recover"); break;
-      case "about": setTitle("About us"); break;
-      case "board":   initBoard();    setTitle("Tasks");   break;
-      default:        setTitle("Taskly");
+      case "home":
+        initRegister();
+        setTitle("Registrarse");
+        break;
+
+      case "login":
+        initLogin();
+        setTitle("Ingresar");
+        break;
+
+      case "profile":
+        initProfile();
+        setTitle("");               // sin título en Perfil (requisito del profe)
+        break;
+
+      case "recover":
+        initRecover();              
+        break;
+
+
+      case "about":
+        setTitle("Sobre nosotros");
+        break;
+
+      case "board":
+        initBoard();
+        setTitle("Tareas");
+        break;
+
+      default:
+        setTitle("Taskly");
     }
+
     highlightMenu(name);
     updateHeader();
   } catch (err) {
@@ -46,9 +72,10 @@ function highlightMenu(name) {
 function getHashView() {
   const h = location.hash.replace(/^#\/?/, "");
   const [viewWithParams] = h.split("/");
-  const view = viewWithParams.split("?")[0]; // 👈 elimina ?token=...
+  const view = viewWithParams.split("?")[0]; // ✅ limpia los parámetros
   return view || "home";
 }
+
 
 export function initRouter() {
   // Navegación
@@ -169,60 +196,135 @@ function initLogin() {
 
 }
 
-function initRecover() {
-  // modo solicitud o reset
-  const reqForm = document.getElementById("recoverRequest") || document.getElementById("recoverForm");
-  const resForm = document.getElementById("recoverReset");
-  const msg = document.getElementById("recoverMsg");
+function byId(id){ return document.getElementById(id); }
+function show(el){
+  if (!el) return;
+  el.hidden = false;
+  el.classList.remove("hidden");
+  el.style.removeProperty("display"); // limpia restos inline
+}
+function hide(el){
+  if (!el) return;
+  el.hidden = true;
+  el.classList.add("hidden");
+  el.style.setProperty("display","none"); // mata lo que haya
+}
 
+
+function initRecover() {
   const params = new URLSearchParams(location.hash.split("?")[1] || "");
   const token = params.get("token");
-  const email = params.get("email");
+  const emailParam = (params.get("email") || "").trim();
+  const hasSession = !!localStorage.getItem("token");
 
-  if (token && email && resForm) {
-    // mostrar reset
-    if (reqForm) reqForm.style.display = "none";
-    resForm.style.display = "";
-    document.getElementById("recToken").value = token;
-    document.getElementById("recEmail2").value = email;
+  const formRequest = byId("recoverRequest"); // correo
+  const formReset   = byId("recoverReset");   // con token
+  const formChange  = byId("recoverChange");  // logueado
 
-    const toggle = document.getElementById("togglePwdRec");
-    const pwd = document.getElementById("recPwd");
-    toggle?.addEventListener("click", () => {
-      const isText = pwd.type === "text";
-      pwd.type = isText ? "password" : "text";
-      toggle.textContent = isText ? "Mostrar" : "Ocultar";
-    });
+  const msgReq    = byId("recoverMsg");
+  const msgReset  = byId("recoverMsgReset");
+  const msgChange = byId("recoverMsgChange");
 
-    resForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const p1 = document.getElementById("recPwd").value;
-      const p2 = document.getElementById("recPwd2").value;
-      if (p1 !== p2) { alert("Las contraseñas no coinciden"); return; }
-      try {
-        await recoverUser({ email, token, password: p1 }, "reset");
-        alert("Contraseña actualizada. Inicia sesión.");
-        location.hash = "#/login";
-      } catch (err) {
-        alert(err.message);
-      }
-    });
-  } else if (reqForm) {
-    reqForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const em = (document.getElementById("recEmail") || document.getElementById("email")).value.trim();
-      if (!em) { msg && (msg.textContent = "Escribe tu correo."); return; }
-      try {
-        setStatus("Enviando correo de recuperación...");
-        await recoverUser({ email: em }, "request");
-        msg && (msg.textContent = "Si el correo existe, recibirás instrucciones.");
-        setStatus("");
-      } catch (err) {
-        msg && (msg.textContent = err.message); setStatus("");
-      }
-    });
+  // 1) Oculta todo de entrada (corta-fuegos)
+  [formRequest, formReset, formChange].forEach(hide);
+
+  // 2) Título + decidir modo
+  const mode = token ? "reset" : (hasSession ? "change" : "request");
+  setTitle(mode === "request" ? "Recuperar contraseña" : "Cambiar contraseña");
+
+  // 3) Mostrar solo el que toca
+  if (mode === "reset") {
+    show(formReset);
+    // token/email
+    const recToken = byId("recToken");
+    const recEmail2 = byId("recEmail2");
+    const wrap = byId("recEmail2Wrap");
+    if (recToken) recToken.value = token || "";
+    if (emailParam) { if (recEmail2) recEmail2.value = emailParam; wrap?.setAttribute("hidden","hidden"); }
+    else wrap?.removeAttribute("hidden");
+  } else if (mode === "change") {
+    show(formChange);
+  } else {
+    show(formRequest);
+  }
+
+  // 4) Handlers sin duplicarse
+  if (formRequest) formRequest.onsubmit = async (e) => {
+    e.preventDefault();
+    const email = byId("recEmail")?.value.trim();
+    if (!email) { msgReq.textContent = "Ingresa tu correo"; return; }
+    const btn = e.submitter; btn?.setAttribute("disabled","disabled");
+    try {
+      setStatus("Enviando correo...");
+      await recoverUser({ email }, "request"); // POST /auth/forgot-password
+      msgReq.textContent = "Si el correo existe, se enviaron instrucciones.";
+    } catch (err) {
+      msgReq.textContent = err?.message || "No se pudo enviar";
+    } finally {
+      btn?.removeAttribute("disabled");
+      setStatus("");
+    }
+  };
+
+  if (formReset) formReset.onsubmit = async (e) => {
+    e.preventDefault();
+    const email = (byId("recEmail2")?.value || "").trim();
+    const tokenValue = byId("recToken")?.value || token || "";
+    const password = byId("recPwd")?.value;
+    const password2 = byId("recPwd2")?.value;
+    if (!email || !tokenValue || !password || !password2) { msgReset.textContent = "Completa todos los campos"; return; }
+    if (password !== password2) { msgReset.textContent = "Las contraseñas no coinciden"; return; }
+    const btn = e.submitter; btn?.setAttribute("disabled","disabled");
+    try {
+      setStatus("Actualizando...");
+      await recoverUser({ email, token: tokenValue, password }, "reset"); // POST /auth/reset-password
+      msgReset.textContent = "Contraseña actualizada. Puedes iniciar sesión.";
+      // location.hash = "#/login";
+    } catch (err) {
+      msgReset.textContent = err?.message || "No se pudo actualizar";
+    } finally {
+      btn?.removeAttribute("disabled");
+      setStatus("");
+    }
+  };
+
+  if (formChange) formChange.onsubmit = async (e) => {
+    e.preventDefault();
+    const currentPassword = byId("curPwd")?.value;
+    const newPassword = byId("newPwd")?.value;
+    const newPassword2 = byId("newPwd2")?.value;
+    if (!currentPassword || !newPassword || !newPassword2) { msgChange.textContent = "Completa todos los campos"; return; }
+    if (newPassword.length < 6) { msgChange.textContent = "La nueva contraseña debe tener al menos 6 caracteres"; return; }
+    if (newPassword !== newPassword2) { msgChange.textContent = "Las contraseñas no coinciden"; return; }
+    const btn = e.submitter; btn?.setAttribute("disabled","disabled");
+    try {
+      setStatus("Cambiando contraseña...");
+      await changePassword({ currentPassword, newPassword }); // POST /auth/change-password
+      msgChange.textContent = "Contraseña cambiada correctamente.";
+      byId("curPwd").value = "";
+      byId("newPwd").value = "";
+      byId("newPwd2").value = "";
+    } catch (err) {
+      msgChange.textContent = err?.message || "No se pudo cambiar la contraseña";
+    } finally {
+      btn?.removeAttribute("disabled");
+      setStatus("");
+    }
+  };
+
+  // 5) Toggle mostrar/ocultar
+  const toggle = byId("togglePwdRec");
+  if (toggle) {
+    toggle.onclick = () => {
+      const i = byId("recPwd");
+      if (!i) return;
+      i.type = i.type === "password" ? "text" : "password";
+      toggle.textContent = i.type === "password" ? "Mostrar" : "Ocultar";
+    };
   }
 }
+
+
 
 function initBoard() {
   if (!localStorage.getItem("token")) {
