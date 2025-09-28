@@ -35,7 +35,7 @@ function render(name) {
 
       case "profile":
         initProfile();
-        setTitle("");               // sin título en Perfil (requisito del profe)
+        setTitle("Perfil");               // sin título en Perfil (requisito del profe)
         break;
 
       case "recover":
@@ -44,8 +44,12 @@ function render(name) {
 
 
       case "about":
-        setTitle("Sobre nosotros");
-        break;
+  setTitle("Sobre nosotros");
+  const backBtn = document.getElementById("btnBackBoard");
+  backBtn?.addEventListener("click", () => {
+    location.hash = "#/board";
+  });
+  break;
 
       case "board":
         initBoard();
@@ -346,6 +350,8 @@ function initBoard() {
   const fab        = document.getElementById("fabNewTask");
   const btnDelOk   = document.getElementById("btnConfirmDelete");
   const btnDelNo   = document.getElementById("btnCancelDelete");
+  const taskPanel   = document.getElementById("taskPanel");
+const deleteDlg   = document.getElementById("deleteDialog");
 
   let deleteId = null;
 
@@ -381,6 +387,57 @@ function initBoard() {
     paint("col_doing", buckets.doing);
     paint("col_done",  buckets.done);
   }
+
+
+  function openTaskPanel() {
+  taskPanel?.classList.remove("hidden");
+  document.body.style.overflow = "hidden"; // bloquea scroll del fondo
+}
+function closeTaskPanel() {
+  taskPanel?.classList.add("hidden");
+  document.body.style.overflow = "";       // devuelve scroll
+}
+
+function openDeleteDialog() {
+  deleteDlg?.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+function closeDeleteDialog() {
+  deleteDlg?.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+// Enlaza tus botones:
+document.getElementById("fabNewTask")?.addEventListener("click", openTaskPanel);
+document.getElementById("btnCancelTask")?.addEventListener("click", closeTaskPanel);
+
+// Si al editar abres el panel:
+document.querySelectorAll("[data-edit]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    // ...cargar datos en el form...
+    openTaskPanel();
+  });
+});
+
+// Para borrar (abrir confirmación)
+document.querySelectorAll("[data-delete]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    // guarda el id a eliminar en algún sitio si hace falta
+    openDeleteDialog();
+  });
+});
+document.getElementById("btnCancelDelete")?.addEventListener("click", closeDeleteDialog);
+
+// Al confirmar borrado, cierras el diálogo también
+document.getElementById("btnConfirmDelete")?.addEventListener("click", async () => {
+  try {
+    // ...llamada DELETE a tu API...
+  } finally {
+    closeDeleteDialog();
+  }
+});
+
+
 
   function openPanel(mode, task = null) {
     form.reset(); msg.textContent = "";
@@ -627,9 +684,58 @@ function initProfile() {
       submitBtn?.removeAttribute("disabled");
     }
   });
+  
+  // Zona peligrosa: eliminar cuenta
+(function initProfileDangerZone(){
+  const btnDelete = document.getElementById("btnDeleteAccount");
+  const modal = document.getElementById("deleteModal");
+  const btnCancelDelete = document.getElementById("btnCancelDelete");
+  const btnConfirmDelete = document.getElementById("btnConfirmDelete");
+  const input = document.getElementById("deleteConfirmInput");
+  if (!btnDelete || !modal) return;
+
+  btnDelete.addEventListener("click", () => {
+    input && (input.value = "");
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+    setTimeout(()=>input?.focus(), 0);
+  });
+
+  btnCancelDelete?.addEventListener("click", () => {
+    modal.classList.add("hidden");
+    modal.setAttribute("aria-hidden", "true");
+  });
+
+  btnConfirmDelete?.addEventListener("click", async () => {
+    if (!input || input.value.trim().toUpperCase() !== "ELIMINAR") {
+      alert("Debes escribir ELIMINAR exactamente.");
+      return;
+    }
+    try {
+      setStatus("Eliminando cuenta...");
+      const { deleteMe } = await import("../services/userService.js");
+      await deleteMe();
+      localStorage.clear();
+      alert("Tu cuenta fue eliminada.");
+      location.href = "/";
+    } catch (err) {
+      console.error(err);
+      alert(err?.message || "No se pudo eliminar la cuenta");
+    } finally {
+      setStatus("");
+    }
+  });
+
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape" && !modal.classList.contains("hidden")) {
+      modal.classList.add("hidden");
+      modal.setAttribute("aria-hidden", "true");
+    }
+  });
+})();
 
   // Cancelar
   btnCancel?.addEventListener("click", () => {
-    history.length > 1 ? history.back() : (location.hash = "#/board");
-  });
+  location.hash = "#/board";
+});
 }

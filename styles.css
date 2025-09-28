@@ -377,3 +377,314 @@ main.container,
   grid-template-columns: 1fr;
 }
 
+/* Danger zone & modal */
+.btn--danger {
+  background: var(--danger);
+  color: var(--on-primary);
+  border: none;
+}
+
+.form__actions {
+  display: flex;
+  justify-content: center;
+  gap: 1.8rem;
+  margin-top: 2rem;
+}
+.form__actions .btn {
+  min-width: 140px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+}
+
+.danger-zone {
+  border-top: 1px solid rgba(255,255,255,.1);
+  margin-top: 2rem;
+  padding-top: 1rem;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+.danger-zone h3 {
+  margin-bottom: .7rem;
+  color: var(--danger);
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.7); /* backdrop oscuro */
+  z-index: 9999;
+}
+.modal.hidden { display: none; }
+
+.modal-content {
+  background: var(--card);
+  color: var(--fg);
+  padding: 1.5rem;
+  border-radius: var(--r-sm);
+  width: min(92vw, 420px);
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--stroke);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: .5rem;
+  color: var(--danger);
+}
+
+.modal-content p {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.modal-content input {
+  width: 70%;
+  padding: .6rem;
+  margin: .8rem 0 1rem;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(255,255,255,.15);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* Botones dentro del modal */
+#deleteModal .form__actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+#deleteModal .form__actions .btn {
+  min-width: 120px;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: var(--r-sm);
+}
+
+#deleteModal .btn--danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.back-btn {
+  margin-bottom: 1rem;
+  background: transparent;
+  color: var(--primary);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+.back-btn:hover {
+  text-decoration: underline;
+}
+
+/* ===== Panel Crear/Editar como overlay ===== */
+.panel {
+  position: fixed;       /* saca el panel del flujo */
+  inset: 0;              /* ocupa toda la pantalla */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.65); /* backdrop */
+  z-index: 1000;         /* por encima del contenido y footer */
+}
+.panel.hidden { display: none; }
+
+/* La tarjeta del form dentro del panel */
+.panel .card {
+  width: min(92vw, 520px);
+  margin: 0;                 /* nada de márgenes que empujen el footer */
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--stroke);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow);
+}
+.panel h2 { margin-top: 0; text-align: center; }
+
+/* Botones del form bien centrados */
+.panel .form__actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.panel .form__actions .btn { min-width: 140px; }
+
+/* ===== Diálogo de eliminar tarea (alertdialog) ===== */
+.dialog {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.65);
+  z-index: 1001;            /* un pelín por encima del panel si coincide */
+}
+.dialog.hidden { display: none; }
+
+.dialog__box {
+  width: min(92vw, 420px);
+  background: var(--card);
+  color: var(--fg);
+  border: 1px solid var(--stroke);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+  text-align: center;
+}
+.dialog__actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* ===== Jerarquía de capas coherente ===== */
+.kanban { position: relative; z-index: 10; }
+.fab    { position: fixed; right: 18px; bottom: 72px; z-index: 40; }
+.menu   { z-index: 50; }
+.app-footer, .site-footer { position: relative; z-index: 5; margin-top: 40px; }
+
+/* Botón peligro en diálogos */
+.btn--danger { background: var(--danger); color: var(--on-primary); border: none; }
+
+.panel.hidden,
+.dialog.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Solo cuando NO están hidden aceptan eventos */
+.panel,
+.dialog {
+  pointer-events: auto;
+}
+
+/* ===== Jerarquía correcta de capas =====
+   dialog (confirmaciones)  > panel (crear/editar) > menú > contenido  */
+.dialog { z-index: 1001 !important; }
+.panel  { z-index: 1000 !important; }
+
+/* El MENÚ debe ir por encima del tablero y tarjetas,
+   pero por debajo de paneles/diálogos */
+#mainMenu.menu {
+  position: fixed !important;
+  z-index: 900 !important;
+}
+
+/* El contenido normal nunca debe tapar al menú */
+.card,
+.kanban {
+  position: relative;
+  z-index: 1 !important;       /* pisa cualquier valor alto que hayas puesto antes */
+}
+
+/* Si tenías esto en algún lado, está causando el bug. Písalo:  */
+/* .kanban { z-index: 30; }  -> ya no, gracias */
+
+#deleteModal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.7);
+  z-index: 9999;             /* encima de menú, footer, etc. */
+}
+#deleteModal.hidden { display: none; }
+
+
+/* Header con GRID: [hamburguesa] [título centrado] [logo a la derecha] */
+.app-header {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto; /* izq | centro | der */
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  padding: 0 12px;
+}
+
+/* Botón hamburguesa en la columna 1 */
+.app-header > .app-header__toggle {
+  grid-column: 1;
+  justify-self: start;
+}
+
+/* Título centrado REAL ocupando todo el ancho, pero alineado al centro */
+.app-header__title {
+  grid-column: 1 / -1;   /* abarca las 3 columnas */
+  justify-self: center;  /* centrado real */
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  position: static !important;   /* anula absolute previos */
+  transform: none !important;    /* por si lo habías centrado con transform */
+}
+
+/* Logo SIEMPRE a la derecha (columna 3) */
+.app-header > .app-logo {
+  grid-column: 3;
+  justify-self: end;
+  height: 36px;
+  width: auto !important;
+}
+
+/* Status discreto a la derecha, antes del logo si aparece */
+.app-header > .status {
+  grid-column: 3;
+  justify-self: end;
+  margin: 0 8px 0 0 !important;
+}
+
+/* El menú es overlay independiente; su posicionamiento no afecta el grid */
+#mainMenu.menu {
+  position: fixed !important; /* como ya lo tienes */
+  z-index: 900 !important;
+}
+
+/* Logo del menú: tamaño civilizado */
+.menu__branding { 
+  margin-top: auto; 
+  padding-top: 12px; 
+  border-top: 1px solid rgba(255,255,255,.1); 
+  text-align: center; 
+}
+.menu-logo {
+  display: inline-block;
+  height: 40px;
+  width: auto !important;
+  max-width: 70%;
+  object-fit: contain;
+}
+
+/* === Ajustes de tamaño para logo y título === */
+
+/* Logo en el header */
+.app-logo {
+  height: 70px;         /* antes 36px, ahora más grande */
+  width: auto;
+  margin-left: auto;
+  object-fit: contain;
+}
+
+/* Título centrado en el header */
+.app-header__title {
+  font-size: 1.8rem;    /* más grande */
+  font-weight: 700;     /* un poco más grueso */
+  letter-spacing: 0.5px;/* ligero espaciado elegante */
+}
+

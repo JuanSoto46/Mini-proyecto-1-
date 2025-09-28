@@ -25,5 +25,28 @@
 
       <p id="profileMsg" class="small" aria-live="polite"></p>
     </form>
+
+    <!-- Zona peligrosa FUERA del form -->
+    <section class="danger-zone">
+      <h3>Zona peligrosa</h3>
+      <button type="button" id="btnDeleteAccount" class="btn btn--danger">Eliminar cuenta</button>
+    </section>
+
   </article>
 </div>
+
+<!-- Modal SIEMPRE fuera del container/card -->
+<div id="deleteModal" class="modal hidden" aria-hidden="true">
+  <div class="modal-content">
+    <h3>¿Seguro que deseas eliminar tu cuenta?</h3>
+    <p>Escribe <strong>ELIMINAR</strong> para confirmar.</p>
+    <input id="deleteConfirmInput" type="text" placeholder="Digite ELIMINAR" />
+    <div class="form__actions">
+      <button type="button" id="btnCancelDelete" class="btn">Cancelar</button>
+      <button type="button" id="btnConfirmDelete" class="btn btn--danger">Eliminar definitivamente</button>
+    </div>
+  </div>
+</div>
+  </article>
+</div>
+

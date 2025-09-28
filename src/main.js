@@ -74,3 +74,4 @@ document.addEventListener("click", (e) => {
     location.hash = "#/login";
   }
 });
+

@@ -27,3 +27,7 @@ export async function updateProfile(data) {
 export async function changePassword({ currentPassword, newPassword }) {
   return http.post("/auth/change-password", { currentPassword, newPassword }, { auth: true });
 }
+
+export async function deleteMe(){
+  return http.del("/users/me", { auth: true });
+}
