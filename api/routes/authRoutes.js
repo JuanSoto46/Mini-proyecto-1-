@@ -1,6 +1,6 @@
 /**
  * @file authRoutes.js
- * @description Autenticación: registro, login y recuperación de contraseña.
+ * @description Rutas de autenticación: registro, login y recuperación de contraseña.
  */
 const express = require("express");
 const bcrypt = require("bcryptjs");
@@ -11,56 +11,41 @@ const { sendMail } = require("../utils/mailer");
 
 const router = express.Router();
 
-// Util: generar JWT
-function signToken(user) {
-  const payload = { sub: user._id.toString(), email: user.email };
-  const secret = process.env.JWT_SECRET || "dev";
-  // 7 días porque nadie quiere loguearse cada 30 minutos
-  return jwt.sign(payload, secret, { expiresIn: "7d" });
-}
-
-// POST /auth/register
+/**
+ * POST /auth/register
+ */
 router.post("/register", async (req, res) => {
   try {
     const { firstName, lastName, age, email, password } = req.body || {};
     if (!firstName || !lastName || !age || !email || !password) {
       return res.status(400).json({ message: "Faltan campos" });
     }
-    const exists = await User.findOne({ email: String(email).toLowerCase().trim() });
-    if (exists) return res.status(400).json({ message: "Email ya registrado" });
+
+    const existing = await User.findOne({ email: String(email).toLowerCase().trim() });
+    if (existing) return res.status(400).json({ message: "Email ya registrado" });
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = await User.create({
+    await User.create({
       firstName,
       lastName,
       age,
       email: String(email).toLowerCase().trim(),
-      passwordHash
+      passwordHash,
     });
 
-    // Puedes decidir si devuelves token inmediato tras registro
-    const token = signToken(user);
-    res.status(201).json({
-      ok: true,
-      token,
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        age: user.age,
-        email: user.email
-      }
-    });
+    res.status(201).json({ ok: true, message: "Usuario registrado" });
   } catch (err) {
-    res.status(400).json({ message: err.message || "No se pudo registrar" });
+    res.status(500).json({ message: "Error en el servidor" });
   }
 });
 
-// POST /auth/login
+/**
+ * POST /auth/login
+ */
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body || {};
-    if (!email || !password) return res.status(400).json({ message: "Faltan credenciales" });
+    if (!email || !password) return res.status(400).json({ message: "Credenciales incompletas" });
 
     const user = await User.findOne({ email: String(email).toLowerCase().trim() });
     if (!user) return res.status(401).json({ message: "Credenciales inválidas" });
@@ -68,54 +53,58 @@ router.post("/login", async (req, res) => {
     const ok = await bcrypt.compare(password, user.passwordHash);
     if (!ok) return res.status(401).json({ message: "Credenciales inválidas" });
 
-    const token = signToken(user);
-    res.json({
-      ok: true,
-      token,
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        age: user.age,
-        email: user.email
-      }
-    });
+    const token = jwt.sign(
+      { sub: user._id.toString(), email: user.email },
+      process.env.JWT_SECRET || "dev",
+      { expiresIn: "2h" }
+    );
+
+    res.json({ token });
   } catch (err) {
-    res.status(400).json({ message: err.message || "No se pudo iniciar sesión" });
+    res.status(500).json({ message: "Error en el servidor" });
   }
 });
 
-// POST /auth/forgot-password
+/**
+ * POST /auth/forgot-password
+ */
 router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body || {};
-    if (!email) return res.status(400).json({ message: "Falta email" });
+    if (!email) return res.status(400).json({ message: "Email requerido" });
 
     const user = await User.findOne({ email: String(email).toLowerCase().trim() });
-    if (!user) return res.json({ ok: true }); // no reveles si existe
+    if (!user) return res.json({ ok: true }); // no revelar si existe
 
-    const token = crypto.randomBytes(20).toString("hex");
+    const token = crypto.randomBytes(32).toString("hex");
     user.resetPasswordToken = token;
-    user.resetPasswordExpires = new Date(Date.now() + 1000 * 60 * 30); // 30 min
+    user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1h
     await user.save();
 
-    const appUrl = process.env.APP_URL || "http://localhost:5173";
-    const url = `${appUrl}#/recover?email=${encodeURIComponent(user.email)}&token=${token}`;
-    await sendMail({
-      to: user.email,
-      subject: "Recupera tu contraseña",
-      html: `<p>Para restablecer tu contraseña, usa este enlace:</p>
-             <p><a href="${url}">${url}</a></p>
-             <p>Caduca en 30 minutos.</p>`
-    });
+    const base = process.env.FRONTEND_URL || "http://localhost:5173";
+    const link = `${base}/#/recover?token=${token}&email=${encodeURIComponent(email)}`;
 
-    res.json({ ok: true });
+    const html = `
+      <div style="font-family:system-ui">
+        <h2>Restablecer contraseña</h2>
+        <p>Haz clic en el botón para crear una nueva contraseña (expira en 1 hora).</p>
+        <p><a href="${link}" 
+              style="background:#4f46e5;color:#fff;padding:10px 14px;border-radius:8px;text-decoration:none">
+              Restablecer contraseña
+           </a></p>
+      </div>`;
+
+    await sendMail({ to: email, subject: "Restablecer contraseña", html });
+
+    res.json({ ok: true, message: "Correo enviado" });
   } catch (err) {
-    res.status(400).json({ message: err.message || "No se pudo procesar" });
+    res.status(500).json({ message: "Error en el servidor" });
   }
 });
 
-// POST /auth/reset-password
+/**
+ * POST /auth/reset-password
+ */
 router.post("/reset-password", async (req, res) => {
   try {
     const { email, token, password } = req.body || {};
@@ -124,8 +113,9 @@ router.post("/reset-password", async (req, res) => {
     const user = await User.findOne({
       email: String(email).toLowerCase().trim(),
       resetPasswordToken: token,
-      resetPasswordExpires: { $gt: new Date() }
+      resetPasswordExpires: { $gt: new Date() },
     });
+
     if (!user) return res.status(400).json({ message: "Token inválido o expirado" });
 
     user.passwordHash = await bcrypt.hash(password, 10);
@@ -135,7 +125,32 @@ router.post("/reset-password", async (req, res) => {
 
     res.json({ ok: true, message: "Contraseña actualizada" });
   } catch (err) {
-    res.status(400).json({ message: err.message || "No se pudo restablecer" });
+    res.status(500).json({ message: "Error en el servidor" });
+  }
+});
+
+/**
+ * POST /auth/change-password
+ * Requiere token. Body: { currentPassword, newPassword }
+ */
+const { authRequired } = require("../middlewares/auth");
+router.post("/change-password", authRequired, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+    if (!currentPassword || !newPassword) return res.status(400).json({ message: "Faltan campos" });
+
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    const ok = await bcrypt.compare(currentPassword, user.passwordHash || "");
+    if (!ok) return res.status(400).json({ message: "Contraseña actual incorrecta" });
+
+    user.passwordHash = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.json({ ok: true, message: "Contraseña actualizada" });
+  } catch (err) {
+    res.status(500).json({ message: "Error en el servidor" });
   }
 });
 
