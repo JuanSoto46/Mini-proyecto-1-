@@ -1,6 +1,6 @@
 /**
  * @file User.js
- * @description Modelo de usuario para autenticación y recuperación.
+ * @description User model for authentication and password recovery.
  */
 const mongoose = require("mongoose");
 
@@ -20,15 +20,15 @@ const UserSchema = new mongoose.Schema({
   },
   passwordHash: { type: String, required: true },
 
-  // Recuperación de contraseña
+  // Password recovery
   resetPasswordToken: { type: String, default: null },
   resetPasswordExpires: { type: Date, default: null }
 }, { timestamps: true });
 
-// Índice único en email
+// Unique index on email
 UserSchema.index({ email: 1 }, { unique: true });
 
-// Ocultar datos sensibles al devolver JSON
+// Hide sensitive data when returning JSON
 UserSchema.set("toJSON", {
   transform: (doc, ret) => {
     delete ret.passwordHash;
