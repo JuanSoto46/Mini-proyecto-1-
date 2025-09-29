@@ -1,29 +1,11 @@
 /**
  * @file mailer.js
- * @description Utilidad para enviar correos usando SMTP (Gmail u otros) con manejo de errores.
+ * @description Utilidad para enviar correos usando SendGrid API (HTTP, no SMTP)
  */
+const sgMail = require('@sendgrid/mail');
 
-const nodemailer = require("nodemailer");
-
-// Crear el transportador a partir de las variables de entorno
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: Number(process.env.SMTP_PORT) === 465, // true para 465, false para 587/STARTTLS
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
-
-/**
- * Verifica que el transportador está listo
- */
-transporter.verify().then(() => {
-  console.log("✅ Mailer listo para enviar correos");
-}).catch(err => {
-  console.error("❌ Error al verificar el transportador SMTP:", err);
-});
+// Configurar API Key
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 /**
  * Enviar un correo
@@ -34,25 +16,24 @@ transporter.verify().then(() => {
  */
 async function sendMail({ to, subject, html }) {
   try {
-    const info = await transporter.sendMail({
-      from: process.env.MAIL_FROM || process.env.SMTP_USER,
+    const msg = {
       to,
+      from: process.env.MAIL_FROM, // debe estar verificado en SendGrid
       subject,
       html,
-    });
-
-    console.log("📩 Correo enviado:", info.messageId);
-
-    // Si usas Ethereal para testing, esto da la URL de preview
-    if (process.env.SMTP_HOST.includes("ethereal")) {
-      console.log("🔗 Preview URL:", nodemailer.getTestMessageUrl(info));
-    }
-
-    return info;
+    };
+    const res = await sgMail.send(msg);
+    console.log('📩 Correo enviado con SendGrid:', res[0].statusCode);
+    return res;
   } catch (err) {
-    console.error("❌ Error enviando correo:", err);
-    throw err; // lanzar para que el endpoint pueda manejarlo
+  if (err.response) {
+    console.error("❌ Error enviando correo con SendGrid:", err.response.body.errors);
+  } else {
+    console.error("❌ Error inesperado:", err);
   }
+  throw err;
+}
 }
 
 module.exports = { sendMail };
+
