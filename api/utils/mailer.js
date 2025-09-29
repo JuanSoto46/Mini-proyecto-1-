@@ -1,6 +1,6 @@
 /**
  * @file mailer.js
- * @description Utilidad para enviar correos usando SendGrid API (HTTP, no SMTP)
+ * @description Utility to send emails using SendGrid API (HTTP, not SMTP)
  */
 const sgMail = require('@sendgrid/mail');
 
@@ -8,17 +8,17 @@ const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 /**
- * Enviar un correo
+ * Send an email
  * @param {Object} options
- * @param {string} options.to - Correo destino
- * @param {string} options.subject - Asunto del correo
- * @param {string} options.html - Contenido HTML
+ * @param {string} options.to - Recipient email
+ * @param {string} options.subject - Email subject
+ * @param {string} options.html - HTML content
  */
 async function sendMail({ to, subject, html }) {
   try {
     const msg = {
       to,
-      from: process.env.MAIL_FROM, // debe estar verificado en SendGrid
+      from: process.env.MAIL_FROM, // must be verified in SendGrid
       subject,
       html,
     };
