@@ -1,25 +1,25 @@
 /**
- * @file Controlador de usuarios.
+ * @file User controller.
  */
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
-// const Task = require("../models/Task"); // si vas a borrar también tareas del usuario, descomenta
+// const Task = require("../models/Task"); // if you also want to delete user tasks, uncomment
 
 module.exports = {
-  /** Listar usuarios (campos públicos) */
+  /** List users (public fields only) */
   async list(_req, res) {
     const users = await User.find({}, "firstName lastName email age createdAt");
     res.json(users);
   },
 
-  /** Perfil del usuario autenticado */
+  /** Profile of the authenticated user */
   async me(req, res) {
     const u = await User.findById(req.userId, "firstName lastName email age createdAt");
     if (!u) return res.status(404).json({ message: "Usuario no encontrado" });
     res.json(u);
   },
 
-  /** ➕ Actualizar perfil propio */
+  /** ➕  Update own profile */
   async updateMe(req, res) {
     try {
       const userId = req.userId;
@@ -32,13 +32,13 @@ module.exports = {
 
       if (typeof email === "string") {
         const newEmail = String(email).toLowerCase().trim();
-        // Evitar duplicados de email
+        // Prevent duplicate email
         const exists = await User.findOne({ email: newEmail, _id: { $ne: userId } });
         if (exists) return res.status(409).json({ message: "Email ya está en uso" });
         updates.email = newEmail;
       }
 
-      // Cambio de contraseña desde el perfil (opcional)
+      // Password change from profile (optional)
       if (typeof password === "string" && password.length > 0) {
         if (password.length < 6) {
           return res.status(400).json({ message: "La contraseña debe tener al menos 6 caracteres" });
@@ -63,13 +63,13 @@ module.exports = {
     }
   },
 
-  /** ➖ Eliminar cuenta propia */
+  /** ➖ Delete own account */
   async deleteMe(req, res) {
     try {
       const userId = req.userId;
       if (!userId) return res.status(401).json({ message: "No autenticado" });
 
-      // Opcional: limpia datos relacionados del usuario
+      // Optional: clean up related user data
       // await Task.deleteMany({ userId });
 
       const deleted = await User.findByIdAndDelete(userId);
