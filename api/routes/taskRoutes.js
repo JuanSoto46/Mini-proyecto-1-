@@ -1,13 +1,13 @@
 /**
  * @file taskRoutes.js
- * @description Endpoints de tareas con verbos REST.
+ * @description Task endpoints with REST verbs.
  */
 const express = require("express");
 const Task = require("../models/Task");
 const { authRequired } = require("../middlewares/auth");
 const router = express.Router();
 
-// GET /tasks -> obtener todas las tareas del usuario
+// GET /tasks -> get all user tasks
 router.get("/", authRequired, async (req, res) => {
   try {
     const items = await Task.find({ userId: req.userId }).sort({ createdAt: -1 });
@@ -17,7 +17,7 @@ router.get("/", authRequired, async (req, res) => {
   }
 });
 
-// POST /tasks -> crear tarea
+// POST /tasks -> create a task
 router.post("/", authRequired, async (req, res) => {
   try {
     const { title, detail = "", date, time, status = "todo" } = req.body || {};
@@ -31,7 +31,7 @@ router.post("/", authRequired, async (req, res) => {
   }
 });
 
-// PUT /tasks/:id -> actualizar tarea completa
+// PUT /tasks/:id -> update entire task
 router.put("/:id", authRequired, async (req, res) => {
   try {
     const { title, detail = "", date, time, status } = req.body || {};
@@ -55,7 +55,7 @@ router.put("/:id", authRequired, async (req, res) => {
   }
 });
 
-// PUT /tasks/:id/status -> actualizar solo el estado
+// PUT /tasks/:id/status -> update only the status
 router.put("/:id/status", authRequired, async (req, res) => {
   try {
     const { status } = req.body || {};
@@ -76,7 +76,7 @@ router.put("/:id/status", authRequired, async (req, res) => {
   }
 });
 
-// DELETE /tasks/:id -> eliminar tarea
+// DELETE /tasks/:id -> delete a task
 router.delete("/:id", authRequired, async (req, res) => {
   try {
     const del = await Task.findOneAndDelete({ _id: req.params.id, userId: req.userId });
