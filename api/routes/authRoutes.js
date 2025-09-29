@@ -1,6 +1,6 @@
 /**
  * @file authRoutes.js
- * @description Rutas de autenticación: registro, login y recuperación de contraseña.
+ * @description Authentication routes: registration, login, and password recovery.
  */
 const express = require("express");
 const bcrypt = require("bcryptjs");
