@@ -10,11 +10,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
   origin(origin, cb) {
-    if (!origin) return cb(null, true); // permite Postman, curl, healthchecks
-    if (
-      /^http:\/\/localhost:\d+$/.test(origin) || // ✅ cualquier puerto en localhost
-      origin.endsWith(".vercel.app")         || // ✅ cualquier dominio de Vercel
-      origin.endsWith(".onrender.com")          // ✅ tu backend en Render
+    if (!origin) return cb(null, true); // allow Postman, curl, healthchecks
+    
+      /^http:\/\/localhost:\d+$/.test(origin) || // ✅ any port on localhost
+      origin.endsWith(".vercel.app")         || // ✅ any domain on Vercel
+      origin.endsWith(".onrender.com")          // ✅ your backend on Render
     ) {
       return cb(null, true);
     }
@@ -25,14 +25,14 @@ app.use(cors({
   credentials: true
 }));
 
-// Ruta de prueba
+// Test route
 app.get("/", (_req, res) => res.send("Server is running"));
 
-// Rutas de la API
+// API routes
 const routes = require("./routes/routes.js");
 app.use("/api/v1", routes);
 
-// Conexión DB
+// DB connection
 const { connectDB } = require("./config/database");
 
 async function start() {
@@ -45,7 +45,7 @@ async function start() {
   });
 }
 
-// 👇 ahora sí cerramos bien y llamamos la función
+// 👇 now we properly close and call the function
 start().catch((err) => {
   console.error("❌ Failed to start:", err.message);
   process.exit(1);
