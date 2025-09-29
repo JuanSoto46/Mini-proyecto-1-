@@ -3,7 +3,7 @@ const router = express.Router();
 const { authRequired } = require("../middlewares/auth");
 const UserController = require("../controllers/UserController");
 
-// Proteger endpoints con JWT
+// Protect endpoints with JWT
 router.get("/", authRequired, UserController.list);
 router.get("/me", authRequired, UserController.me);
 router.delete("/me", authRequired, UserController.deleteMe);
