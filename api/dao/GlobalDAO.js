@@ -2,9 +2,10 @@
 
 class GlobalDAO {
   constructor(model) {
-    this.model = model;
+    this.model = model; // Mongoose model injected for database operations
   }
 
+  // Create a new document
   async create(data) {
     try {
       const document = new this.model(data);
@@ -14,6 +15,7 @@ class GlobalDAO {
     }
   }
 
+  // Read a document by its ID
   async read(id) {
     try {
       const document = await this.model.findById(id);
@@ -24,6 +26,7 @@ class GlobalDAO {
     }
   }
 
+  // Update a document by its ID
   async update(id, updateData) {
     try {
       const updatedDocument = await this.model.findByIdAndUpdate(
@@ -38,6 +41,7 @@ class GlobalDAO {
     }
   }
 
+  // Delete a document by its ID
   async delete(id) {
     try {
       const deletedDocument = await this.model.findByIdAndDelete(id);
@@ -48,6 +52,7 @@ class GlobalDAO {
     }
   }
 
+  // Retrieve all documents (with optional filters)
   async getAll(filter = {}) {
     try {
       return await this.model.find(filter);
